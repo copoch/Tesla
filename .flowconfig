@@ -1,0 +1,15 @@
+[ignore]
+.*/node_modules/.*
+.*/flow/.*
+.*/docs/.*
+
+[include]
+./bin
+./config
+./lib
+./src
+
+[libs]
+flow
+
+[options]
