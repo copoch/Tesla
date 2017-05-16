@@ -2,11 +2,11 @@
 import { join, resolve } from 'path'
 import webpack from 'webpack'
 import { version } from '../package.json'
-import { PROJECT_ROOT } from '../lib'
+import fs from 'fs'
 
 // context
 // ---
-let context = PROJECT_ROOT
+let context = process.cwd()
 
 // entry
 // ---
@@ -17,7 +17,7 @@ let entry = {
 // output
 // ---
 let output = {
-  path: resolve(PROJECT_ROOT, 'dist'),
+  path: resolve(context, 'dist'),
   filename: '[name].js',
   publicPath: 'dist'
 }
@@ -30,7 +30,11 @@ let module = {
       test: /\.js$/,
       loader: 'babel-loader',
       exclude: /node_modules/
-    }
+    },
+    // {
+    //   test: /\.json$/,
+    //   use: 'json-loader'
+    // }
   ]
 }
 
@@ -43,13 +47,32 @@ const bannerPlugin = new webpack.BannerPlugin({
 let plugins = []
 plugins.push(bannerPlugin)
 
+// externals
+// ---
+let externals = {}
+fs.readdirSync('node_modules')
+  .filter(function(x) {
+    return ['.bin'].indexOf(x) === -1;
+  })
+  .forEach(function(mod) {
+    externals[mod] = 'commonjs ' + mod;
+  });
+
 // devServer
 // ---
-let devServer = {
-  watchContentBase: true,
-  inline: true,
-  disableHostCheck: true,
-  port: 9999
+// let devServer = {
+//   watchContentBase: true,
+//   contentBase: process.cwd(),
+//   inline: true,
+//   disableHostCheck: true,
+//   port: 9999
+// }
+
+// node
+// ---
+let node = {
+  __filename: false,
+  __dirname: false
 }
 
 // export
@@ -60,5 +83,8 @@ export default {
   output,
   module,
   plugins,
-  devServer
+  // devServer,
+  target: 'node',
+  externals,
+  node
 }
